@@ -19,11 +19,7 @@ Public Class FormElectronicInvoicePendding
                 Throw New CustomException("نوع فرم را مشخص نمایید.")
             End If
             Dim ProductList = BLProductDef.GetAllProductList
-            TrnList = BLTransaction.TransactionListForFinancialStatmentPendding(slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, Context.CurrentYear.FinancialYearID,
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
+         
             If TrnList.Count = 0 Then
                 Throw New CustomException("اطلاعاتی جهت ارسال وجود ندارد.")
             End If
@@ -37,20 +33,7 @@ Public Class FormElectronicInvoicePendding
                                                      If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
                                                      If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
                                                      If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
-            For Each i In TrnList
-                Select Case i.FinancialStatmentState
-                    Case 0
-                        i.FinancialStatmentStateTitle = "ارسال نشده"
-                    Case 1
-                        i.FinancialStatmentStateTitle = "ارسال شده"
-                    Case 2
-                        i.FinancialStatmentStateTitle = "در انتظار پاسخ"
-                    Case 4
-                        i.FinancialStatmentStateTitle = "تأیید شده"
-                    Case 5
-                        i.FinancialStatmentStateTitle = "رد شده"
-                End Select
-            Next
+  
             PCommonTools.InformationMessageBox("ارسال انجام شد.")
             If cmbTransactionForm.EditValue = 0 Then
                 Throw New CustomException("نوع فرم را مشخص نمایید.")
@@ -67,22 +50,7 @@ Public Class FormElectronicInvoicePendding
 
             End If
 
-            For Each i In TrnList
-                Select Case i.FinancialStatmentState
-                    Case 0
-                        i.FinancialStatmentStateTitle = "ارسال نشده"
-                    Case 1
-                        i.FinancialStatmentStateTitle = "ارسال شده"
-                    Case 2
-                        i.FinancialStatmentStateTitle = "در انتظار پاسخ"
-                    Case 4
-                        i.FinancialStatmentStateTitle = "تأیید شده"
-                    Case 5
-                        i.FinancialStatmentStateTitle = "رد شده"
-                    Case 6
-                        i.FinancialStatmentStateTitle = "ابطال شده در سامانه"
-                End Select
-            Next
+            
             gcTransaction.DataSource = TrnList
 
         Catch ex As Exception
@@ -133,7 +101,7 @@ Public Class FormElectronicInvoicePendding
         If CurrentRow Is Nothing Then Return
         Dim lst As New List(Of Trn_Transaction)
         lst.Add(CurrentRow)
-        Ganjineh.Net.TaxLIbrary.ElectronicInvoice.GetPenddings(lst, BLAttachment.DownloadAttachedFile(BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID))
+         h.Net.TaxLIbrary.ElectronicInvoice.GetPenddings(lst, BLAttachment.DownloadAttachedFile(BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID))
     End Sub
 
     Private Sub FormFinancialStatmentsChecking_Load(sender As Object, e As EventArgs) Handles Me.Load
