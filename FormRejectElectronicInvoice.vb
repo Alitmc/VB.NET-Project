@@ -59,14 +59,7 @@ Public Class FormRejectElectronicInvoice
                 Throw New CustomException("نوع فرم را مشخص نمایید.")
             End If
             _BLTransaction = New BLTransaction(BLTransactionForm.GetFormByID(cmbTransactionForm.EditValue), slcRangeType.FinancialYearID)
-            TrnList = _BLTransaction.GetTransactionListForRejectFinancialStatment(slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
-            If TrnList.Count = 0 Then
-                Throw New CustomException("اطلاعاتی جهت ابطال وجود ندارد.")
-            End If
+         
 
             'For Each trn In TrnList
             '    If trn.
@@ -203,80 +196,7 @@ Public Class FormRejectElectronicInvoice
 
 
 
-            For Each trn In ftrnList
-                If GlobalParam.OtherPartnerID <> If(trn.DstPartnerID, trn.SrcPartnerID) Then
-                    If trn.DstPartnerID IsNot Nothing Then
-                        If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerType = "R" Then
-                            trn.PartnerType = "1"
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode.Length <> 10 Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                            End If
-                            If IsValidNationalCode(PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID), PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode) = False Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " صحیح نیست.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerPostalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد کد پستی میباشد.")
-                            End If
-                        End If
-                        If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerType = "L" Then
-                            trn.PartnerType = "2"
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode.Length <> 11 Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                            End If
-                        End If
-                    Else
-                        If trn.SrcPartnerID IsNot Nothing Then
-                            If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerType = "R" Then
-                                trn.PartnerType = "1"
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode.Length <> 10 Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                                End If
-                                If IsValidNationalCode(PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID), PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode) = False Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " صحیح نیست.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerPostalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد کد پستی میباشد.")
-                                End If
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerType = "L" Then
-                                trn.PartnerType = "2"
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode.Length <> 11 Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                                End If
-                            End If
-                        End If
-                    End If
-                End If
-            Next
-
-            If BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID = Nothing Then
-                Throw New CustomException("کلید خصوصی مشخص نشده است.")
-            End If
-            If GlobalParam.UniqueTaxMemoryID Is Nothing Then
-                Throw New CustomException("شناسه یکتا حافظه مالیاتی مشخص نشده است.")
-            End If
-            If GlobalParam.FinancialStatmentUserID Is Nothing Then
-                Throw New CustomException("شناسه ملی شرکت مشخص نشده است.")
-            End If
-            Dim UnitList = BLUnit.GetUnitList()
-            For Each tri In TriList
-                If (UnitList.FirstOrDefault(Function(a) a.UnitID = tri.UnitID).FinancialStatementUnitID) Is Nothing Then
-                    Throw New CustomException("واحد معادل سامانه مودیان برای واحد " & UnitList.FirstOrDefault(Function(a) a.UnitID = tri.UnitID).UnitName & "  مشخص نشده است")
-                End If
-            Next
-
+          
             For Each tri In TriList
                 If tri.sstid Is Nothing Then
                     Throw New CustomException("کد کالا معادل سامانه مودیان برای کالا " & ProductList.FirstOrDefault(Function(a) a.ProductID = tri.ProductID).ProductCode & "  مشخص نشده است")
