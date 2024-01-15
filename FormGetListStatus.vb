@@ -90,25 +90,7 @@ Public Class FormGetListStatus
             If Trn._RepairTrn = True Then
                 Setlbl("a")
             End If
-            If Ignore = True Then
-                Setlbl1("a")
-            End If
-            If Trn.FinancialStatmentState = 5 Then
-                SetText(Trn.ElectronicInvoiceErrorMessage)
-                SetText1("رد شده توسط سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-            If Trn.FinancialStatmentState = 4 Then
-                SetText("")
-                SetText1("تأیید شده توسط سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-            If Trn.FinancialStatmentState = 2 Then
-                SetText("")
-                SetText1("در انتظار پاسخ از سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-
+            
         Catch ex As Exception
             CustomException.ShowDialogue(ex)
         End Try
@@ -161,28 +143,7 @@ Public Class FormGetListStatus
 
             If btnSend.Text = "محاسبه تعداد فاکتور ها" Then
 
-                _BLTransaction = New BLTransaction(BLTransactionForm.GetFormByID(cmbTransactionForm.EditValue), LookUpEdit1.EditValue)
-                Dim trnLst As New BindingList(Of Trn_Transaction)
-                If PTextBox1.Text <> "" Then
-                    If CType(PTextBox1.Text, Integer) > 0 Then
-                        trnLst = _BLTransaction.GetTransactionListForListFinancialStatment(CType(PTextBox1.Text, Integer))
-                        If trnLst.Count > 100 Then
-                            Label3.Text = trnLst.Count
-                            Label3.ForeColor = System.Drawing.Color.DarkRed
-                            Throw New CustomException("سقف تعداد در هر بار استعلام 100 عدد می باشد")
-                        End If
-                        btnSend.Text = "دریافت اطلاعات از سامانه"
-                        Label3.ForeColor = System.Drawing.Color.ForestGreen
-                        Label3.Text = trnLst.Count
-                        Return
-                    Else
-                        PTextBox1.Text = Nothing
-                        Return
-                    End If
-                Else
-                    PTextBox1.Text = Nothing
-                    Return
-                End If
+            
             End If
             DoPaymentCalculationAction()
             Label3.Text = 0
