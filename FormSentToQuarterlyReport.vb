@@ -116,51 +116,7 @@ Public Class FormSentToQuarterlyReport
                   Return transactionCost
               End Function
 
-                    Dim TransactionCostLists = TransactionCostList.Where(Function(a) a.TransactionID = tri.TransactionID).ToList.Select(Function(s) SetInfo(s)).ToList
-                    If TransactionCostLists Is Nothing OrElse CType(TransactionCostLists, IEnumerable(Of Trn_TransactionCost)).Count = 0 Then
-                        SharedCostFactorSum = 0
-                    Else
-                        SharedCostFactorSum = CType(TransactionCostLists, IEnumerable(Of Trn_TransactionCost)).Sum(Function(cf) cf.IsShared = True)
-                    End If
-
-
-                    If trn.triList.Any(Function(ti) ti.SaleUnitPriceCurrency IsNot Nothing) Then
-                        Dim TotalPrice As Decimal = trn.triList.Sum(Function(Rows) Rows.SaleUnitPriceCurrency * Rows.Amount * Rows.TransactionObject.ExchangeRate)
-                        TPrice = Math.Truncate(TotalPrice).ToString("#,##0.##;(#,##0.##)")
-                        If trn.IsOfficial IsNot Nothing AndAlso trn.IsOfficial Then
-                            Dim tmpTotalPriceWithVAT As Decimal = trn.triList.Sum(Function(Rows) Rows.PriceWithDiscount + Rows.VATAmount)
-                            TPriceWithVAT = Math.Truncate(tmpTotalPriceWithVAT).ToString("#,##0.##;(#,##0.##)")
-                        Else
-                            TPriceWithVAT = (Math.Floor((trn.triList.Sum(Function(Rows) Rows.PriceWithDiscount) + SharedCostFactorSum)).ToString("#,##0.##;(#,##0.##)"))
-                        End If
-                    Else
-                        Dim tmpTotalPrice As Decimal = trn.triList.Sum(Function(Rows) Rows.UnitPrice_Wrapper * Rows.Amount)
-                        TPrice = Math.Truncate(tmpTotalPrice).ToString("#,##0.##;(#,##0.##)")
-
-                        If trn.IsOfficial IsNot Nothing AndAlso trn.IsOfficial Then
-                            Dim tmpTotalPriceWithVAT As Decimal = trn.triList.Sum(Function(Rows) Rows.PriceWithDiscount + Rows.VATAmount)
-                            TPriceWithVAT = Math.Truncate(tmpTotalPriceWithVAT).ToString("#,##0.##;(#,##0.##)")
-                        Else
-                            TPriceWithVAT = (trn.triList.Sum(Function(Rows) Rows.PriceWithDiscount) + SharedCostFactorSum).ToString("#,##0.##;(#,##0.##)")
-                        End If
-                    End If
-
-                    tri.adis = tri.TotalPrice_Wrapper - tri.Discount
-                    tri.am = String.Format("{0:#,0.##}", tri.Amount_Wrapper)
-                    tri.dis = tri.Discount
-                    tri.fee = tri.UnitPrice_Wrapper
-                    tri.ins = If(trn.FormCode = 102000, 1, 4)
-                    tri.prdis = tri.TotalPrice_Wrapper
-                    tri.sstid = (ProductList.FirstOrDefault(Function(a) a.ProductID = tri.ProductID).FinancialStatementCode).ToString
-                    tri.tadis = TPriceWithVAT
-                    tri.sstt = If(tri.ProductCommercialName IsNot Nothing, tri.ProductCommercialName, tri.ProductName)
-                    tri.tbill = tri.tadis
-                    If trn.DstPartnerID IsNot Nothing Then
-                        trn.tob = (If(PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerType = "R", 1, 2)).ToString
-                    End If
-                    If trn.SrcPartnerID IsNot Nothing Then
-                        trn.tob = (If(PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerType = "R", 1, 2)).ToString
-                    End If
+           
                     tri.tprdis = TPrice
                     tri.tsstam = tri.TotalAmountWith_VAT_Discount_ImpactFactors
                     tri.tvam = trn.triList.Sum(Function(r) r.VATAmount)
@@ -199,88 +155,13 @@ Public Class FormSentToQuarterlyReport
             End If
 
 
-
-            For Each trn In ftrnList
-                If GlobalParam.OtherPartnerID <> If(trn.DstPartnerID, trn.SrcPartnerID) Then
-                    If trn.DstPartnerID IsNot Nothing Then
-                        If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerType = "R" Then
-                            trn.PartnerType = "1"
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode.Length <> 10 Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                            End If
-                            If IsValidNationalCode(PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID), PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode) = False Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " صحیح نیست.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerPostalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد کد پستی میباشد.")
-                            End If
-                        End If
-                        If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerType = "L" Then
-                            trn.PartnerType = "2"
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerNationalCode.Length <> 11 Then
-                                Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.DstPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                            End If
-                        End If
-                    Else
-                        If trn.SrcPartnerID IsNot Nothing Then
-                            If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerType = "R" Then
-                                trn.PartnerType = "1"
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode.Length <> 10 Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                                End If
-                                If IsValidNationalCode(PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID), PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode) = False Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " صحیح نیست.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerPostalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد کد پستی میباشد.")
-                                End If
-                            End If
-                            If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerType = "L" Then
-                                trn.PartnerType = "2"
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode Is Nothing Then
-                                    Throw New CustomException("طرف تجاری به کد " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " فاقد شناسه/کد ملی میباشد.")
-                                End If
-                                If PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerNationalCode.Length <> 11 Then
-                                    Throw New CustomException("فرمت مربوط به شناسه/کد ملی طرف تجاری " & PartnerList.FirstOrDefault(Function(a) trn.SrcPartnerID = a.PartnerID).PartnerCode & " با نوع طرف تجاری همخوانی ندارد.")
-                                End If
-                            End If
-                        End If
-                    End If
-                End If
-            Next
-
-            If BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID = Nothing Then
-                Throw New CustomException("کلید خصوصی مشخص نشده است.")
-            End If
-            If GlobalParam.UniqueTaxMemoryID Is Nothing Then
-                Throw New CustomException("شناسه یکتا حافظه مالیاتی مشخص نشده است.")
-            End If
-            If GlobalParam.FinancialStatmentUserID Is Nothing Then
-                Throw New CustomException("شناسه ملی شرکت مشخص نشده است.")
-            End If
-            Dim UnitList = BLUnit.GetUnitList()
-            For Each tri In TriList
-                If (UnitList.FirstOrDefault(Function(a) a.UnitID = tri.UnitID).FinancialStatementUnitID) Is Nothing Then
-                    Throw New CustomException("واحد معادل سامانه مودیان برای واحد " & UnitList.FirstOrDefault(Function(a) a.UnitID = tri.UnitID).UnitName & "  مشخص نشده است")
-                End If
-            Next
-
             For Each tri In TriList
                 If tri.sstid Is Nothing Then
                     Throw New CustomException("کد کالا معادل سامانه مودیان برای کالا " & ProductList.FirstOrDefault(Function(a) a.ProductID = tri.ProductID).ProductCode & "  مشخص نشده است")
                 End If
             Next
 
-            Ganjineh.Net.TaxLIbrary.ElectronicInvoice.Repair(BLAttachment.DownloadAttachedFile(BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID), TriList, ftrnList, PartnerList, cmbTransactionForm.EditValue, slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
+               .Net.TaxLIbrary.ElectronicInvoice.Repair(BLAttachment.DownloadAttachedFile(BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID), TriList, ftrnList, PartnerList, cmbTransactionForm.EditValue, slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
                                                      If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
                                                      If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
                                                      If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
@@ -310,48 +191,6 @@ Public Class FormSentToQuarterlyReport
 
 
 
-                If cmbTransactionForm.EditValue = 0 Then
-                    Throw New CustomException("نوع فرم را مشخص نمایید.")
-                End If
-                _BLTransaction = New BLTransaction(BLTransactionForm.GetFormByID(cmbTransactionForm.EditValue), slcRangeType.FinancialYearID)
-                TrnList = _BLTransaction.GetTransactionListForIgnoreFinancialStatment(slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
-                                                         If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
-                                                         If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
-                                                         If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
-                                                         If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
-                If TrnList.Count = 0 Then
-                    Throw New CustomException("اطلاعاتی جهت ثبت وجود ندارد.")
-                End If
-
-                If TrnList.Count > 1 Then
-                    Throw New CustomException("امکان ثبت بیش از 1 برگه به صورت یکجا وجود ندارد.")
-                End If
-                If ConfirmMessageBox("آیا از ثبت صورت حساب اطمینان دارید؟", True, "") = System.Windows.Forms.DialogResult.Cancel Then
-                    Return
-                End If
-
-
-
-                For Each trn In TrnList
-                    If trn.IgnoreFinancialStatment = True Then
-                        Throw New CustomException("فاکتور شماره ی " & trn.Number & " قبلا ثبت شده است.")
-                    End If
-                    If trn.FinancialStatmentState = 4 Or trn.FinancialStatmentState = 6 Then
-                        Throw New CustomException("فاکتور شماره ی " & trn.Number & " قبلا ثبت شده است.")
-                    End If
-                    trn.IgnoreFinancialStatment = True
-                    _BLTransaction.Update(trn)
-                Next
-
-                PCommonTools.InformationMessageBox("عملیات با موفقیت انجام شد.")
-
-                trScope.Complete()
-            End Using
-        Catch ex As Exception
-            CustomException.ShowDialogue(ex)
-        End Try
-
-    End Sub
 
 
     Function IsValidNationalCode(Partner As Com_Partner, ByVal nationalCode As String) As Boolean
