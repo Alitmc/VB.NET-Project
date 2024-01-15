@@ -90,34 +90,7 @@ Public Class FormGetStatus
         End If
     End Sub
     Private Sub SetText1(ByVal text As String)
-        If lblCount.InvokeRequired Then
-            Dim d As SetTxt = New SetTxt(AddressOf SetText1)
-            Me.Invoke(d, New Object() {text})
-        Else
-            If text = "اطلاعاتی یافت نشد" Then
-                PTextBox2.ForeColor = Color.Black
-            End If
-
-            If text = "رد شده توسط سامانه" Then
-                PTextBox2.ForeColor = Color.Red
-            End If
-
-            If text = "تأیید شده توسط سامانه" Then
-                PTextBox2.ForeColor = Color.Green
-            End If
-
-            If text = "تأیید ابطال توسط سامانه" Then
-                PTextBox2.ForeColor = Color.Green
-            End If
-
-            If text = "در انتظار پاسخ از سامانه" Then
-                PTextBox2.ForeColor = Color.Blue
-            End If
-
-            PTextBox2.Text = text
-        End If
-    End Sub
-
+         
     Private Sub SetText2(ByVal text As String)
         If lblCount.InvokeRequired Then
             Dim d As SetTxt = New SetTxt(AddressOf SetText2)
@@ -142,35 +115,7 @@ Public Class FormGetStatus
             End If
             Setlbl("")
             Setlbl1("")
-            If Trn._RepairTrn = True Then
-                Setlbl("a")
-            End If
-            If Trn._RejectTrn = True Then
-                SetPLabel6("b")
-            End If
-            If Ignore = True Then
-                Setlbl1("a")
-            End If
-            If Trn.FinancialStatmentState = 5 Then
-                SetText(Trn.ElectronicInvoiceErrorMessage)
-                SetText1("رد شده توسط سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-            If Trn.FinancialStatmentState = 4 Then
-                SetText("")
-                SetText1("تأیید شده توسط سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-            If Trn.FinancialStatmentState = 2 Then
-                SetText("")
-                SetText1("در انتظار پاسخ از سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
-            If Trn.FinancialStatmentState = 6 Then
-                SetText("")
-                SetText1("تأیید ابطال توسط سامانه")
-                SetText2(Trn.FinancialStatmentTaxID)
-            End If
+         
 
         Catch ex As Exception
             CustomException.ShowDialogue(ex)
@@ -398,25 +343,7 @@ Public Class FormGetStatus
         Try
 
 
-            Dim lstColumn As New List(Of ColumnsSelector)
-            lstColumn.Add(New ColumnsSelector("شماره فاکتور", "Number", 70))
-            lstColumn.Add(New ColumnsSelector("شماره فاکتور چاپی", "TmpNumber", 70))
-            lstColumn.Add(New ColumnsSelector("تاریخ فاکتور", "JalaliTransactionDate", 450))
-            lstColumn.Add(New ColumnsSelector("مجموع مبلغ قبل از کسر تخفیف", "tprdis", 500, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("مجموع تخفیفات", "tdis", 500, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("مجموع مبلغ پس از کسر تخفیف", "tadis", 500, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("مجموع مالیات بر ارزش افزوده", "tvam", 400, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("مجموع صورتحساب", "tbill", 500, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("مبلغ پرداختی نقدی", "cap", 500, "{0:#,0.##}", FormatTypeEnum.Numeric))
-            lstColumn.Add(New ColumnsSelector("نوع صورتحساب", "inty", 300))
-            lstColumn.Add(New ColumnsSelector("نوع شخص خریدار", "tob", 350))
-            lstColumn.Add(New ColumnsSelector("نام خریدار", "PartnerName", 350))
-            lstColumn.Add(New ColumnsSelector("شماره اقتصادی/کد ملی خریدار", "PartnerNationalCode", 350))
-            lstColumn.Add(New ColumnsSelector("کد پستی خریدار", "PartnerPostalCode", 400))
-            lstColumn.Add(New ColumnsSelector("سریال صورتحساب داخلی", "FinancialStatmentGenNoSerial", 300))
-            lstColumn.Add(New ColumnsSelector("شماره مالیاتی", "FinancialStatmentTaxID", 300))
-            lstColumn.Add(New ColumnsSelector("وضعیت فاکتور", "FinancialStatmentStateTitle", 350))
-
+          
             Dim lst As IEnumerable(Of Trn_Transaction)
 
             If cmbTransactionForm.EditValue = 0 Then
@@ -584,18 +511,7 @@ Public Class FormGetStatus
                     TrnObj.inno = TrnObj.FinancialStatmentGenNo
                 End If
                 Select Case TrnObj.FinancialStatmentState
-                    Case 0
-                        TrnObj.FinancialStatmentStateTitle = "ارسال نشده"
-                    Case 1
-                        TrnObj.FinancialStatmentStateTitle = "ارسال شده"
-                    Case 2
-                        TrnObj.FinancialStatmentStateTitle = "در انتظار پاسخ"
-                    Case 4
-                        TrnObj.FinancialStatmentStateTitle = "تأیید شده"
-                    Case 5
-                        TrnObj.FinancialStatmentStateTitle = "رد شده"
-                    Case 6
-                        TrnObj.FinancialStatmentStateTitle = "ابطال شده در سامانه"
+
                 End Select
 
                 ftrnList.Add(TrnObj)
