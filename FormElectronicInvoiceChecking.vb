@@ -300,19 +300,7 @@ Public Class FormElectronicInvoiceChecking
                 End If
             Next
 
-            Ganjineh.Net.TaxLIbrary.ElectronicInvoice.Send(BLAttachment.DownloadAttachedFile(BLAttachment.GetAttachmentList(0, 0).FirstOrDefault.AttachmentID), TriList, ftrnList, PartnerList, cmbTransactionForm.EditValue, slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
-
-
-            TrnList = BLTransaction.TransactionListForFinancialStatmentRejected(slcRangeType.SelectedRangeType, cmbSystem.EditValue, cmbTransactionForm.EditValue, slcRangeType.FinancialYearID,
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetStartNumber > 0, slcRangeType.GetStartNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType = RangeTypeEnum.NumberRange AndAlso slcRangeType.GetEndNumber > 0, slcRangeType.GetEndNumber, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetStartDate, Nothing),
-                                                     If(slcRangeType.SelectedRangeType <> RangeTypeEnum.NumberRange, slcRangeType.GetEndDate, Nothing), True)
-
+           
             For Each i In TrnList
                 i.FinancialStatmentStateTitle = "رد شده"
             Next
@@ -409,132 +397,7 @@ Public Class FormElectronicInvoiceChecking
             End If
 
 
-            Dim _BL As New BLTransactionHistory
-            Dim _BLItem As New BLTransactionItemHistory
-            Dim TransactionItemHistoryList = BLTransactionItemHistory.GetTransactionItemHistoryList(HistoryTrn.TransactionID)
-            Dim TransactionItemList = BLTransactionItem.GetTransactionItemList(FocusedRow.TransactionID)
-
-
-            Dim FinancialStatementLog As New Trn_FinancialStatementLog
-            FinancialStatementLog.TransactionID = FocusedRow.TransactionID
-            FinancialStatementLog.UserID = Context.CurrentUser.UserID
-            FinancialStatementLog.EventDate = Now
-            FinancialStatementLog.EventType = "ReturnToPast2"
-            FinancialStatementLog.OriginalValue = FocusedRow.FinancialStatmentState.ToString()
-            FinancialStatementLog.NewValue = FocusedRow.FinancialStatmentState.ToString()
-            FinancialStatementLog.TryNo = BLFinancialStatementLog.GetTryNo(FocusedRow.TransactionID)
-            Dim _BLFinancialStatementLog As New BLFinancialStatementLog
-            _BLFinancialStatementLog.Add(FinancialStatementLog)
-
-            For Each Historytri In TransactionItemHistoryList
-                For Each tri In TransactionItemList
-                    If Historytri.TransactionItemID = tri.TransactionItemID Then
-
-                        Dim triBeforRestore As Trn_TransactionItem = tri
-                        triBeforRestore.TransactionItemID = Historytri.TransactionItemID
-                        triBeforRestore.TransactionID = Historytri.TransactionID
-                        triBeforRestore.RowNo = Historytri.RowNo
-                        triBeforRestore.ProductID = Historytri.ProductID
-                        triBeforRestore.ProductDescription = Historytri.ProductDescription
-                        triBeforRestore.Amount = Historytri.Amount
-                        triBeforRestore.UnitID = Historytri.UnitID
-                        triBeforRestore.Discount = Historytri.Discount
-                        triBeforRestore.VATPercent = Historytri.VATPercent
-                        triBeforRestore.AccountID = Historytri.AccountID
-                        triBeforRestore.FreeAccountID1 = Historytri.FreeAccountID1
-                        triBeforRestore.FreeAccountID2 = Historytri.FreeAccountID2
-                        triBeforRestore.Priced = Historytri.Priced
-                        triBeforRestore.PriceRefTransactionItemID = Historytri.PriceRefTransactionItemID
-                        triBeforRestore.CountRefTransactionItemID = Historytri.CountRefTransactionItemID
-                        triBeforRestore.RemainedPricingAmount = Historytri.RemainedPricingAmount
-                        triBeforRestore.CreatorID = Historytri.CreatorID
-                        triBeforRestore.CreateDate = Historytri.CreateDate
-                        triBeforRestore.LastUpdatorID = Historytri.LastUpdatorID
-                        triBeforRestore.LastUpdateDate = Historytri.LastUpdateDate
-                        triBeforRestore.WarehouseUnitPrice = Historytri.WarehouseUnitPrice
-                        triBeforRestore.SaleUnitPrice = Historytri.SaleUnitPrice
-                        triBeforRestore.ImpactFactors = Historytri.ImpactFactors
-                        triBeforRestore.TransactionItemControlCodeID = Historytri.TransactionItemControlCodeID
-                        triBeforRestore.SaleUnitPriceCurrency = Historytri.SaleUnitPriceCurrency
-                        triBeforRestore.FreeAccountID = Historytri.FreeAccountID
-                        triBeforRestore.TotalWarehousePrice = Historytri.TotalWarehousePrice
-                        triBeforRestore.TotalSalePrice = Historytri.TotalSalePrice
-                        triBeforRestore.PricingDate = Historytri.PricingDate
-                        triBeforRestore.ComplicationsPercent = Historytri.ComplicationsPercent
-                        triBeforRestore.TaxesPercent = Historytri.TaxesPercent
-                        triBeforRestore.Comment = Historytri.Comment
-                        triBeforRestore.SystemicPriced = Historytri.SystemicPriced
-                        triBeforRestore.UnitConversionRate = Historytri.UnitConversionRate
-                        _BLItem.Update(triBeforRestore)
-
-                    End If
-
-                Next
-
-            Next
-
-            Dim trnBeforRestore As Trn_Transaction = FocusedRow
-
-            trnBeforRestore.FormCode = HistoryTrn.FormCode
-            trnBeforRestore.FinancialYearID = HistoryTrn.FinancialYearID
-            trnBeforRestore.Number = HistoryTrn.Number
-            trnBeforRestore.TransactionDesc = HistoryTrn.TransactionDesc
-            trnBeforRestore.TmpNumber = HistoryTrn.TmpNumber
-            trnBeforRestore.TransactionDate = HistoryTrn.TransactionDate
-            trnBeforRestore.PriceRefTransactionID = HistoryTrn.PriceRefTransactionID
-            trnBeforRestore.CountRefTransactionID = HistoryTrn.CountRefTransactionID
-            trnBeforRestore.SaleVoucherID = HistoryTrn.SaleVoucherID
-            trnBeforRestore.SrcPartnerID = HistoryTrn.SrcPartnerID
-            trnBeforRestore.SrcWarehouseID = HistoryTrn.SrcWarehouseID
-            trnBeforRestore.SrcCostCenterID = HistoryTrn.SrcCostCenterID
-            trnBeforRestore.DstPartnerID = HistoryTrn.DstPartnerID
-            trnBeforRestore.DstWarehouseID = HistoryTrn.DstWarehouseID
-            trnBeforRestore.DstCostCenterID = HistoryTrn.DstCostCenterID
-            trnBeforRestore.PartnerName = HistoryTrn.PartnerName
-            trnBeforRestore.PartnerAddress = HistoryTrn.PartnerAddress
-            trnBeforRestore.PartnerPhone = HistoryTrn.PartnerPhone
-            trnBeforRestore.PartnerMobile = HistoryTrn.PartnerMobile
-            trnBeforRestore.MiddleManID = HistoryTrn.MiddleManID
-            trnBeforRestore.ValidityDays = HistoryTrn.ValidityDays
-            trnBeforRestore.CreatorID = HistoryTrn.CreatorID
-            trnBeforRestore.CreateDate = HistoryTrn.CreateDate
-            trnBeforRestore.LastUpdatorID = HistoryTrn.LastUpdatorID
-            trnBeforRestore.LastUpdateDate = HistoryTrn.LastUpdateDate
-            trnBeforRestore.Registered = HistoryTrn.Registered
-            trnBeforRestore.RegistererID = HistoryTrn.RegistererID
-            trnBeforRestore.RegisterDate = HistoryTrn.RegisterDate
-            trnBeforRestore.Confirmed = HistoryTrn.Confirmed
-            trnBeforRestore.ConfirmerID = HistoryTrn.ConfirmerID
-            trnBeforRestore.ConfirmDate = HistoryTrn.ConfirmDate
-            trnBeforRestore.Canceled = HistoryTrn.Canceled
-            trnBeforRestore.CancelerID = HistoryTrn.CancelerID
-            trnBeforRestore.CancelDate = HistoryTrn.CancelDate
-            trnBeforRestore.IsOfficial = HistoryTrn.IsOfficial
-            trnBeforRestore.WarehouseVoucherID = HistoryTrn.WarehouseVoucherID
-            trnBeforRestore.HasCurrency = HistoryTrn.HasCurrency
-            trnBeforRestore.CurrencyID = HistoryTrn.CurrencyID
-            trnBeforRestore.ExchangeRate = HistoryTrn.ExchangeRate
-            trnBeforRestore.PrintDate = HistoryTrn.PrintDate
-            trnBeforRestore.RegisteredPrice = HistoryTrn.RegisteredPrice
-            trnBeforRestore.RegistererPriceID = HistoryTrn.RegistererPriceID
-            trnBeforRestore.RegisterPriceDate = HistoryTrn.RegisterPriceDate
-            trnBeforRestore.FreeAccountID = HistoryTrn.FreeAccountID
-            trnBeforRestore.TransactionFixNo = HistoryTrn.TransactionFixNo
-            trnBeforRestore.CreatedBySystem = HistoryTrn.CreatedBySystem
-            trnBeforRestore.CreatorSystemID = HistoryTrn.CreatorSystemID
-            trnBeforRestore.OriginEntityID = HistoryTrn.OriginEntityID
-            trnBeforRestore.OriginEntityRecordID = HistoryTrn.OriginEntityRecordID
-            trnBeforRestore.ConfirmedLogistic = HistoryTrn.ConfirmedLogistic
-            trnBeforRestore.ContractNumber = HistoryTrn.ContractNumber
-            trnBeforRestore.TransactionDesc1 = HistoryTrn.TransactionDesc1
-            trnBeforRestore.FinancialStatmentState = HistoryTrn.FinancialStatmentState
-            trnBeforRestore.FinancialStatmentGenNo = HistoryTrn.FinancialStatmentGenNo
-            trnBeforRestore.FinancialStatmentReferenceNo = HistoryTrn.FinancialStatmentReferenceNo
-            trnBeforRestore.FinancialStatmentTaxID = HistoryTrn.FinancialStatmentTaxID
-            trnBeforRestore.FinancialStatmentUID = HistoryTrn.FinancialStatmentUID
-            trnBeforRestore.SalemanID = HistoryTrn.SalemanID
-            trnBeforRestore.RejectOrRepairStatus = Nothing
-            _BL.Update(trnBeforRestore)
+        
 
             Dim HistoryTrnList = BLTransactionHistory.GetTransactionHistoryList(FocusedRow.TransactionID)
 
